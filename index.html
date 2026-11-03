@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Preview and extract icon0, pic0, and pic1 from a PS4 PKG file or direct link. Local files stay on your device."
+    />
+    <meta name="theme-color" content="#080a10" />
+    <title>PKG Art — Package artwork, unpacked.</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="src/core.js" defer></script>
+    <script src="src/zip.js" defer></script>
+    <script src="src/app.js" defer></script>
+  </head>
+  <body>
+    <svg
+      class="svg-library"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <symbol id="i-package" viewBox="0 0 24 24">
+        <path
+          d="m12 3 9 5v8l-9 5-9-5V8l9-5Zm0 9 9-4M12 12 3 8m9 4v9M7.5 5.5l9 5"
+        />
+      </symbol>
+      <symbol id="i-upload" viewBox="0 0 24 24">
+        <path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5" />
+      </symbol>
+      <symbol id="i-link" viewBox="0 0 24 24">
+        <path
+          d="m10 13 4-4m-5 6-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m0 12a4 4 0 0 0 6 0l5-5a4 4 0 0 0-6-6l-2 2"
+          transform="translate(1 0) scale(.9)"
+        />
+      </symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24">
+        <path d="M4 12h16m-6-6 6 6-6 6" />
+      </symbol>
+      <symbol id="i-download" viewBox="0 0 24 24">
+        <path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" />
+      </symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24">
+        <rect x="5" y="10" width="14" height="11" rx="2" />
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+      </symbol>
+      <symbol id="i-image" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <circle cx="8" cy="8" r="1.5" />
+        <path d="m3 17 5-5 4 4 4-7 5 8" />
+      </symbol>
+      <symbol id="i-expand" viewBox="0 0 24 24">
+        <path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6" />
+      </symbol>
+      <symbol id="i-close" viewBox="0 0 24 24">
+        <path d="m6 6 12 12M6 18 18 6" />
+      </symbol>
+    </svg>
+
+    <header class="brand" aria-label="PKG Art web">
+      <svg class="brand-mark icon" aria-hidden="true">
+        <use href="#i-package" />
+      </svg>
+      <span>PKG <span class="brand-accent">Art</span></span>
+      <span class="brand-web">web</span><span class="version">v1.0</span>
+    </header>
+
+    <main>
+      <div class="intro">
+        <h1>Package artwork,<br />unpacked.</h1>
+        <p class="lede">
+          A closer look inside your <code>.pkg</code>. Load a PS4 package and
+          get its <code>icon0</code>, <code>pic0</code>, and
+          <code>pic1</code> images.
+        </p>
+      </div>
+
+      <ol class="workflow" aria-label="Extraction steps">
+        <li id="step-source" class="active" aria-current="step">
+          <span>01</span> Select source
+        </li>
+        <li id="step-preview"><span>02</span> Preview</li>
+        <li id="step-save"><span>03</span> Download</li>
+      </ol>
+
+      <section class="source" aria-labelledby="source-heading">
+        <div class="section-heading">
+          <h2 id="source-heading">Package source</h2>
+          <span class="format-label">PS4 · .PKG</span>
+        </div>
+        <div
+          class="source-tabs"
+          role="tablist"
+          aria-label="Package source type"
+        >
+          <button
+            type="button"
+            id="tab-file"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panel-file"
+            tabindex="0"
+          >
+            <svg class="icon" aria-hidden="true"><use href="#i-upload" /></svg
+            >Local file
+          </button>
+          <button
+            type="button"
+            id="tab-url"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-url"
+            tabindex="-1"
+          >
+            <svg class="icon" aria-hidden="true"><use href="#i-link" /></svg
+            >Direct link
+          </button>
+        </div>
+
+        <div id="panel-file" role="tabpanel" aria-labelledby="tab-file">
+          <button
+            type="button"
+            class="drop-zone"
+            id="drop-zone"
+            aria-label="Choose a PKG file"
+          >
+            <svg class="upload-icon icon" aria-hidden="true">
+              <use href="#i-upload" />
+            </svg>
+            <span id="drop-title"
+              >Drop your package here, or <strong>browse files</strong></span
+            >
+            <span class="drop-hint" id="drop-hint"
+              >One PS4 PKG file · Read directly from your device</span
+            >
+          </button>
+          <input id="file-input" type="file" accept=".pkg" hidden />
+        </div>
+
+        <div id="panel-url" role="tabpanel" aria-labelledby="tab-url" hidden>
+          <label for="package-url">Direct package URL</label>
+          <input
+            type="url"
+            id="package-url"
+            placeholder="https://example.com/game.pkg"
+            autocomplete="off"
+            spellcheck="false"
+            aria-describedby="url-hint"
+          />
+          <p class="field-hint" id="url-hint">
+            Use a direct download link. The host must allow browser access
+            (CORS); range requests avoid downloading the whole package.
+          </p>
+        </div>
+
+        <div class="source-actions">
+          <button type="button" id="reset" class="text-button" hidden>
+            Clear source</button
+          ><span id="source-meta">No package selected</span>
+        </div>
+        <button type="button" id="load" class="primary" disabled>
+          <span id="load-label">Load package</span
+          ><svg class="icon" aria-hidden="true"><use href="#i-arrow" /></svg>
+        </button>
+        <p id="status" class="status" role="status" aria-live="polite">
+          Choose a file or paste a link to get started.
+        </p>
+        <div id="progress-panel" hidden>
+          <progress
+            id="progress"
+            max="100"
+            value="0"
+            aria-label="Artwork extraction progress"
+          ></progress>
+          <div class="progress-line">
+            <span id="progress-label">Reading package header…</span
+            ><button type="button" id="cancel" class="text-button">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="artwork" aria-labelledby="artwork-heading">
+        <div class="section-heading">
+          <h2 id="artwork-heading">Artwork preview</h2>
+          <span id="art-count">Waiting for a package</span>
+        </div>
+        <div id="package-info" class="package-info" hidden>
+          <strong id="package-title"></strong><span id="package-details"></span>
+        </div>
+        <div class="art-grid" id="art-grid">
+          <article class="art-card" data-kind="icon0">
+            <div class="art-heading">
+              <h3>icon0<span>.png</span></h3>
+              <span class="art-role">Icon</span>
+            </div>
+            <div class="art-stage">
+              <svg class="icon" aria-hidden="true"><use href="#i-image" /></svg
+              ><span>Package icon</span>
+            </div>
+            <div class="art-bottom">
+              <span class="art-meta">Not loaded</span
+              ><button
+                class="icon-button save-image"
+                type="button"
+                aria-label="Download icon0.png"
+                disabled
+              >
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-download" />
+                </svg>
+              </button>
+            </div>
+          </article>
+          <article class="art-card" data-kind="pic0">
+            <div class="art-heading">
+              <h3>pic0<span>.png</span></h3>
+              <span class="art-role">Background</span>
+            </div>
+            <div class="art-stage">
+              <svg class="icon" aria-hidden="true"><use href="#i-image" /></svg
+              ><span>Background image</span>
+            </div>
+            <div class="art-bottom">
+              <span class="art-meta">Not loaded</span
+              ><button
+                class="icon-button save-image"
+                type="button"
+                aria-label="Download pic0.png"
+                disabled
+              >
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-download" />
+                </svg>
+              </button>
+            </div>
+          </article>
+          <article class="art-card" data-kind="pic1">
+            <div class="art-heading">
+              <h3>pic1<span>.png</span></h3>
+              <span class="art-role">Splash</span>
+            </div>
+            <div class="art-stage">
+              <svg class="icon" aria-hidden="true"><use href="#i-image" /></svg
+              ><span>Splash image</span>
+            </div>
+            <div class="art-bottom">
+              <span class="art-meta">Not loaded</span
+              ><button
+                class="icon-button save-image"
+                type="button"
+                aria-label="Download pic1.png"
+                disabled
+              >
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-download" />
+                </svg>
+              </button>
+            </div>
+          </article>
+        </div>
+        <button type="button" id="download-all" class="secondary" disabled>
+          <svg class="icon" aria-hidden="true"><use href="#i-download" /></svg
+          >Download all images <span class="zip-label">.zip</span>
+        </button>
+        <p class="privacy">
+          <svg class="icon" aria-hidden="true"><use href="#i-lock" /></svg>Local
+          files stay on your device. Nothing is uploaded.
+        </p>
+      </section>
+
+      <details>
+        <summary>How does it work?</summary>
+        <p>
+          PKG Art reads the PS4 package header and extracts the original PNG
+          artwork, without installing or changing the package. Click an image
+          for a full-size preview, save it individually, or download the
+          available images together.
+        </p>
+        <p>
+          Some packages do not include every image. Encrypted, damaged, PS3, and
+          PS5 packages are not supported. Remote links must point to the actual
+          file, rather than a download page. If a host blocks browser access,
+          download the package and choose Local file.
+        </p>
+      </details>
+      <footer>
+        <span>Open a package. Keep the artwork.</span
+        ><span>Browser-based · PS4</span>
+      </footer>
+    </main>
+
+    <dialog id="image-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-top">
+        <h2 id="dialog-title">Artwork preview</h2>
+        <button
+          id="close-dialog"
+          type="button"
+          class="icon-button"
+          aria-label="Close preview"
+        >
+          <svg class="icon" aria-hidden="true"><use href="#i-close" /></svg>
+        </button>
+      </div>
+      <img id="dialog-image" alt="" />
+      <div class="dialog-bottom">
+        <span id="dialog-meta"></span
+        ><a id="dialog-download" class="text-link" download
+          >Download original
+          <svg class="icon" aria-hidden="true"><use href="#i-download" /></svg
+        ></a>
+      </div>
+    </dialog>
+    <noscript
+      >This tool needs JavaScript enabled to read PKG files in your
+      browser.</noscript
+    >
+  </body>
+</html>
